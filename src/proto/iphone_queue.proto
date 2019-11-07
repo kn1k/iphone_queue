@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package iphone_queue;
+
+import "helpers.proto";
+
+// Pipe type information stored in the database
+message Participant {
+    // `PublicKey`
+    exonum.PublicKey key = 1;
+    // Timestamp
+    uint64 timestamp = 2;
+    // have bought
+    bool have_bought = 3;
+    // removed
+    bool removed = 4;
+    // history len
+    uint64 history_len = 5;
+    // `Hash` of the transactions history.
+    exonum.Hash history_hash = 6;
+}
+
+// Create participant
+message Add {
+    // `PublicKey` of pipe type.
+    exonum.PublicKey key = 1;
+    // timestamp
+    uint64 timestamp = 2;
+}
+
+// Buy an iphone
+message Buy {
+    // `PublicKey` of pipe type.
+    exonum.PublicKey key = 1;
+}
+
+// Remove from queue
+message Remove {
+    // `PublicKey` of pipe type.
+    exonum.PublicKey key = 1;
+}
