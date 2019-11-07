@@ -6,7 +6,7 @@ use exonum::{
     messages::{Message, RawTransaction, Signed},
 };
 
-use super::{ proto, schema::Schema, SERVICE_ID };
+use super::{proto, schema::Schema, SERVICE_ID};
 
 /// Error codes emitted by pipes transactions during execution.
 #[derive(Debug, Fail)]
@@ -17,7 +17,6 @@ pub enum Error {
     /// Can be emitted by `Add`.
     #[fail(display = "Participant already exists")]
     ParticipantAlreadyExists = 0,
-
     // TODO add some errors
 }
 
@@ -51,14 +50,9 @@ impl Add {
         pk: &PublicKey,
         &key: &PublicKey,
         timestamp: u64,
-        sk: &SecretKey) -> Signed<RawTransaction> {
-
-        Message::sign_transaction(
-            Self { key, timestamp },
-            SERVICE_ID,
-            *pk,
-            sk,
-        )
+        sk: &SecretKey,
+    ) -> Signed<RawTransaction> {
+        Message::sign_transaction(Self { key, timestamp }, SERVICE_ID, *pk, sk)
     }
 }
 
@@ -67,14 +61,14 @@ impl Transaction for Add {
         let hash = context.tx_hash();
 
         let mut schema = Schema::new(context.fork());
-            
+
         let key = &self.key;
 
         if schema.participant(key).is_none() {
             let timestamp = self.timestamp;
 
             schema.add_participant(key, timestamp, false, false, &hash);
-            
+
             Ok(())
         } else {
             Err(Error::ParticipantAlreadyExists)?

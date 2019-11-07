@@ -1,5 +1,5 @@
-use exonum::crypto::{Hash, PublicKey};
 use super::proto;
+use exonum::crypto::{Hash, PublicKey};
 
 /// Stores information about a pipe type
 #[derive(Clone, Debug, ProtobufConvert)]
@@ -24,14 +24,18 @@ impl Participant {
     pub fn new(
         &key: &PublicKey,
         timestamp: u64,
-        have_bought: bool, 
+        have_bought: bool,
         removed: bool,
         history_len: u64,
         &history_hash: &Hash,
     ) -> Self {
         Self {
             key,
-            timestamp, have_bought, removed, history_len, history_hash
+            timestamp,
+            have_bought,
+            removed,
+            history_len,
+            history_hash,
         }
     }
     // TODO buy

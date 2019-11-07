@@ -1,10 +1,10 @@
 //! Iphone queue
 
 #![deny(
-missing_debug_implementations,
-missing_docs,
-unsafe_code,
-bare_trait_objects
+    missing_debug_implementations,
+    missing_docs,
+    unsafe_code,
+    bare_trait_objects
 )]
 
 extern crate exonum;
@@ -19,14 +19,14 @@ extern crate protobuf;
 
 /// API
 pub mod api;
+/// Pipe type struct
+pub mod participant;
 /// PB structures
 pub mod proto;
 /// Schema
 pub mod schema;
 /// Transactions
 pub mod transactions;
-/// Pipe type struct
-pub mod participant;
 
 use exonum_merkledb::Snapshot;
 
@@ -35,10 +35,9 @@ use exonum::{
     blockchain::{self, Transaction, TransactionSet},
     crypto::Hash,
     helpers::fabric::{self, Context},
-    messages::RawTransaction
+    messages::RawTransaction,
 };
 
-use api::PublicApi;
 use schema::Schema;
 use transactions::ParticipantTransactions;
 

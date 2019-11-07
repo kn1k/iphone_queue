@@ -1,7 +1,7 @@
 //! Iphone queue database schema.
-use exonum_merkledb::{IndexAccess, ObjectHash, ProofListIndex, ProofMapIndex};
-use exonum::crypto::{Hash, PublicKey};
 use crate::participant::Participant;
+use exonum::crypto::{Hash, PublicKey};
+use exonum_merkledb::{IndexAccess, ObjectHash, ProofListIndex, ProofMapIndex};
 
 /// Pipe types table name
 pub const PARTICIPANT_TYPES_TABLE: &str = "iphone_queue.participant";
@@ -21,8 +21,8 @@ impl<T> AsMut<T> for Schema<T> {
 }
 
 impl<T> Schema<T>
-    where
-        T: IndexAccess,
+where
+    T: IndexAccess,
 {
     /// Creates a new schema from the database view.
     pub fn new(view: T) -> Self {
@@ -54,18 +54,24 @@ impl<T> Schema<T>
         &mut self,
         key: &PublicKey,
         timestamp: u64,
-        have_bought: bool, 
+        have_bought: bool,
         removed: bool,
-        transaction: &Hash) {
+        transaction: &Hash,
+    ) {
         let created_participant = {
             let mut history = self.participant_history(key);
             history.push(*transaction);
             let history_hash = history.object_hash();
 
-            Participant::new(key, timestamp, have_bought, removed,
-                        history.len(), &history_hash)
+            Participant::new(
+                key,
+                timestamp,
+                have_bought,
+                removed,
+                history.len(),
+                &history_hash,
+            )
         };
         self.participants().put(key, created_participant);
     }
 }
-

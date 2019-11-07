@@ -1,14 +1,14 @@
-use exonum_merkledb::{ListProof, MapProof};
 use exonum::{
     api::{self, ServiceApiBuilder, ServiceApiState},
     blockchain::{self, BlockProof, TransactionMessage},
     crypto::{Hash, PublicKey},
     explorer::BlockchainExplorer,
-    helpers::Height    
+    helpers::Height,
 };
+use exonum_merkledb::{ListProof, MapProof};
 
-use crate::participant::Participant;
 use super::{schema::Schema, SERVICE_ID};
+use crate::participant::Participant;
 
 /// Describes the query parameters for the `get_wallet` endpoint.
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq)]
@@ -51,9 +51,11 @@ pub struct ParticipantInfo {
 pub struct PublicApi;
 
 impl PublicApi {
-
     /// Endpoint for getting a single wallet.
-    pub fn participant_info(state: &ServiceApiState, query: ParticipantQuery) -> api::Result<ParticipantInfo> {
+    pub fn participant_info(
+        state: &ServiceApiState,
+        query: ParticipantQuery,
+    ) -> api::Result<ParticipantInfo> {
         let snapshot = state.snapshot();
         let general_schema = blockchain::Schema::new(&snapshot);
         let currency_schema = Schema::new(&snapshot);
@@ -103,8 +105,8 @@ impl PublicApi {
 
     /// Wires the above endpoint to public scope of the given `ServiceApiBuilder`.
     pub fn wire(builder: &mut ServiceApiBuilder) {
-       builder
-           .public_scope()
-           .endpoint("v1/iphone_queue/info", Self::participant_info);
+        builder
+            .public_scope()
+            .endpoint("v1/iphone_queue/info", Self::participant_info);
     }
 }

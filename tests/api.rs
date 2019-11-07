@@ -3,16 +3,16 @@ extern crate serde_json;
 
 use exonum::{
     api::node::public::explorer::{TransactionQuery, TransactionResponse},
-    crypto::{self, Hash, PublicKey, SecretKey, PUBLIC_KEY_LENGTH},
+    crypto::{self, Hash, PublicKey, SecretKey},
     messages::{self, RawTransaction, Signed},
 };
 use exonum_testkit::{ApiKind, TestKit, TestKitApi, TestKitBuilder};
 
 // Import data types used in tests from the crate where the service is defined.
 use iphone_queue::{
-    api::{ParticipantQuery, ParticipantInfo/*, GetFirstQuery*/},
-    transactions::{Add},
+    api::{ParticipantInfo /*, GetFirstQuery*/, ParticipantQuery},
     participant::Participant,
+    transactions::Add,
     Service,
 };
 
@@ -30,9 +30,6 @@ fn test_add_participant() {
     let p = api.get_participant(pk).unwrap();
     assert_eq!(p.key, pk);
     assert_eq!(p.timestamp, 100);
-
-    // let first = api.get_first().unwrap();
-    // assert_eq!(first, pk);
 }
 
 /// Wrapper for the cryptocurrency service API allowing to easily use it
@@ -47,7 +44,11 @@ impl ParticipantsApi {
     /// within the response).
     /// Note that the transaction is not immediately added to the blockchain, but rather is put
     /// to the pool of unconfirmed transactions.
-    fn add_participant(&self, pk: &PublicKey, timestamp: u64) -> (Signed<RawTransaction>, SecretKey) {
+    fn add_participant(
+        &self,
+        pk: &PublicKey,
+        timestamp: u64,
+    ) -> (Signed<RawTransaction>, SecretKey) {
         let (pubkey, key) = crypto::gen_keypair();
         // Create a pre-signed transaction
         let tx = Add::sign(&pubkey, pk, timestamp, &key);
@@ -71,47 +72,17 @@ impl ParticipantsApi {
             .get::<ParticipantInfo>("v1/iphone_queue/info")
             .unwrap();
 
-        let to_participant = participant_info.participant_proof.to_participant.check().unwrap();
+        let to_participant = participant_info
+            .participant_proof
+            .to_participant
+            .check()
+            .unwrap();
         println!("{:?}", to_participant);
-        let (_, participant) = to_participant.all_entries().find(|(&key, _)| key == pub_key)?;
+        let (_, participant) = to_participant
+            .all_entries()
+            .find(|(&key, _)| key == pub_key)?;
         participant.cloned()
     }
-
-    // fn get_first(&self) -> Option<PublicKey> {
-    //     let get_first = self
-    //         .inner
-    //         .public(ApiKind::Service("pipe_marking"))
-    //         .query(&GetFirstQuery { })
-    //         .get::<Vec<Participant>>("v1/participants/first")
-    //         .unwrap();
-
-    //     Some(get_first.first().unwrap().key)
-    // }
-/*
-    /// Sends a transfer transaction over HTTP and checks the synchronous result.
-    fn transfer(&self, tx: &Signed<RawTransaction>) {
-        let data = messages::to_hex_string(&tx);
-        let tx_info: TransactionResponse = self
-            .inner
-            .public(ApiKind::Explorer)
-            .query(&json!({ "tx_body": data }))
-            .post("v1/transactions")
-            .unwrap();
-        assert_eq!(tx_info.tx_hash, tx.hash());
-    }
-
-    /// Asserts that a wallet with the specified public key is not known to the blockchain.
-    fn assert_no_wallet(&self, pub_key: PublicKey) {
-        let wallet_info: WalletInfo = self
-            .inner
-            .public(ApiKind::Service("cryptocurrency"))
-            .query(&WalletQuery { pub_key })
-            .get("v1/wallets/info")
-            .unwrap();
-
-        let to_wallet = wallet_info.wallet_proof.to_wallet.check().unwrap();
-        assert!(to_wallet.missing_keys().any(|&key| key == pub_key))
-    }*/
 
     /// Asserts that the transaction with the given hash has a specified status.
     fn assert_tx_status(&self, tx_hash: Hash, expected_status: &serde_json::Value) {
