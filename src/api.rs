@@ -10,23 +10,27 @@ use exonum_merkledb::{ListProof, MapProof};
 use super::{schema::Schema, SERVICE_ID};
 use crate::participant::Participant;
 
-/// Describes the query parameters for the `get_wallet` endpoint.
+/// Get first participant key
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq)]
+pub struct GetFirstQuery {}
+
+/// Describes the query parameters for the `get_participant` endpoint.
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq)]
 pub struct ParticipantQuery {
-    /// Public key of the queried wallet.
+    /// Public key of the queried participant.
     pub pub_key: PublicKey,
 }
 
-/// Proof of existence for specific wallet.
+/// Proof of existence for specific participant.
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ParticipantProof {
     /// Proof of the whole database table.
     pub to_table: MapProof<Hash, Hash>,
-    /// Proof of the specific wallet in this table.
+    /// Proof of the specific participant in this table.
     pub to_participant: MapProof<PublicKey, Participant>,
 }
 
-/// Wallet history.
+/// Participant history.
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ParticipantHistory {
     /// Proof of the list of transaction hashes.
@@ -35,14 +39,14 @@ pub struct ParticipantHistory {
     pub transactions: Vec<TransactionMessage>,
 }
 
-/// Wallet information.
+/// Participant information.
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ParticipantInfo {
     /// Proof of the last block.
     pub block_proof: BlockProof,
-    /// Proof of the appropriate wallet.
+    /// Proof of the appropriate participant.
     pub participant_proof: ParticipantProof,
-    /// History of the appropriate wallet.
+    /// History of the appropriate participant.
     pub participant_history: Option<ParticipantHistory>,
 }
 
@@ -51,8 +55,8 @@ pub struct ParticipantInfo {
 pub struct PublicApi;
 
 impl PublicApi {
-    /// Endpoint for getting a single wallet.
-    pub fn participant_info(
+    /// Endpoint for getting a single participant.
+    fn participant_info(
         state: &ServiceApiState,
         query: ParticipantQuery,
     ) -> api::Result<ParticipantInfo> {
@@ -103,10 +107,19 @@ impl PublicApi {
         })
     }
 
+    fn get_first(state: &ServiceApiState, _: GetFirstQuery) -> api::Result<String> {
+        let snapshot = state.snapshot();
+        let schema = Schema::new(&snapshot);
+        let first = schema.first_participant().unwrap();
+
+        Ok(first.key.to_hex())
+    }
+
     /// Wires the above endpoint to public scope of the given `ServiceApiBuilder`.
     pub fn wire(builder: &mut ServiceApiBuilder) {
         builder
             .public_scope()
-            .endpoint("v1/iphone_queue/info", Self::participant_info);
+            .endpoint("v1/iphone_queue/info", Self::participant_info)
+            .endpoint("v1/iphone_queue/get_first", Self::get_first);
     }
 }

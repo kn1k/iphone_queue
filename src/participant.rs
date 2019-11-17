@@ -1,7 +1,7 @@
 use super::proto;
 use exonum::crypto::{Hash, PublicKey};
 
-/// Stores information about a pipe type
+/// Stores information about a participant
 #[derive(Clone, Debug, ProtobufConvert)]
 #[exonum(pb = "proto::Participant", serde_pb_convert)]
 pub struct Participant {
@@ -38,6 +38,34 @@ impl Participant {
             history_hash,
         }
     }
-    // TODO buy
-    // TODO remove
+    
+    /// buy
+    pub fn buy(
+        self,
+        &history_hash: &Hash
+    ) -> Self {
+        Self::new(
+            &self.key,
+            self.timestamp,
+            true,
+            self.removed,
+            self.history_len + 1,
+            &history_hash
+        )
+    }
+    
+    /// remove
+    pub fn remove(
+        self,
+        &history_hash: &Hash
+    ) -> Self {
+        Self::new(
+            &self.key,
+            self.timestamp,
+            self.have_bought,
+            true,
+            self.history_len + 1,
+            &history_hash
+        )
+    }
 }

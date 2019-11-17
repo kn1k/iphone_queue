@@ -22,7 +22,7 @@ message Participant {
 
 // Create participant
 message Add {
-    // `PublicKey` of pipe type.
+    // `PublicKey` of participant.
     exonum.PublicKey key = 1;
     // timestamp
     uint64 timestamp = 2;
@@ -30,12 +30,12 @@ message Add {
 
 // Buy an iphone
 message Buy {
-    // `PublicKey` of pipe type.
+    // `PublicKey` of participant.
     exonum.PublicKey key = 1;
 }
 
 // Remove from queue
 message Remove {
-    // `PublicKey` of pipe type.
+    // `PublicKey` of participant.
     exonum.PublicKey key = 1;
 }
