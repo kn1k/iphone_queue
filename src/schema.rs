@@ -20,14 +20,16 @@ fn compare_by_params(p1: &str, p2: &str) -> Ordering {
     let a1 = parse_as_vec(p1);
     let a2 = parse_as_vec(p2);
     let mut i = 0usize;
+    // бежим по параметрам - считаем, что порядок полей одинаков в обоих сущностях
     while i < a1.len() {
         let v1 = a1[i][0].as_str().unwrap();
         let v2 = a2[i][0].as_str().unwrap();
         let cmp = match a1[i][1].as_str().unwrap() {
+            // сравниваем только date и int поля
             "date"|"int" => {
                 let i1 = v1.parse::<i32>().unwrap();
                 let i2 = v2.parse::<i32>().unwrap();
-                i1.cmp(&i2)                
+                i1.cmp(&i2) // без учета направления пока. это asc. для desc надо возвращать i2.cmp(&i1)               
             }
             _ => {
                 Ordering::Equal
