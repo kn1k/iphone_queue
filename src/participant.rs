@@ -13,6 +13,8 @@ pub struct Participant {
     pub have_bought: bool,
     /// Removed
     pub removed: bool,
+    /// Params
+    pub params: String,
     /// Length of the transactions history.
     pub history_len: u64,
     /// `Hash` of the transactions history.
@@ -26,6 +28,7 @@ impl Participant {
         timestamp: u64,
         have_bought: bool,
         removed: bool,
+        params: &str,
         history_len: u64,
         &history_hash: &Hash,
     ) -> Self {
@@ -34,6 +37,7 @@ impl Participant {
             timestamp,
             have_bought,
             removed,
+            params: params.to_owned(),
             history_len,
             history_hash,
         }
@@ -49,6 +53,7 @@ impl Participant {
             self.timestamp,
             true,
             self.removed,
+            &self.params,
             self.history_len + 1,
             &history_hash
         )
@@ -64,6 +69,7 @@ impl Participant {
             self.timestamp,
             self.have_bought,
             true,
+            &self.params,
             self.history_len + 1,
             &history_hash
         )

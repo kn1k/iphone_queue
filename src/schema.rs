@@ -3,11 +3,43 @@ use crate::participant::Participant;
 use exonum::crypto::{Hash, PublicKey};
 use exonum_merkledb::{IndexAccess, ObjectHash, ProofListIndex, ProofMapIndex};
 use std::cmp::Ordering;
+use serde_json::{Value};
 
 /// Pipe types table name
 pub const PARTICIPANT_TYPES_TABLE: &str = "iphone_queue.participant";
 /// Pipe type history table name
 pub const PARTICIPANT_HISTORY_TABLE: &str = "iphone_queue.participant.history";
+
+fn parse_as_vec(data: &str) -> Vec<Value> {
+    let v: Value = serde_json::from_str(data).unwrap();
+    let a = v.as_array().unwrap();
+    a.to_vec()
+}
+
+fn compare_by_params(p1: &str, p2: &str) -> Ordering {
+    let a1 = parse_as_vec(p1);
+    let a2 = parse_as_vec(p2);
+    let mut i = 0usize;
+    while i < a1.len() {
+        let v1 = a1[i][0].as_str().unwrap();
+        let v2 = a2[i][0].as_str().unwrap();
+        let cmp = match a1[i][1].as_str().unwrap() {
+            "date"|"int" => {
+                let i1 = v1.parse::<i32>().unwrap();
+                let i2 = v2.parse::<i32>().unwrap();
+                i1.cmp(&i2)                
+            }
+            _ => {
+                Ordering::Equal
+            }
+        };
+        if cmp != Ordering::Equal {
+            return cmp;
+        }
+        i += 1;
+    }
+    Ordering::Equal
+}
 
 /// Database schema.
 #[derive(Debug)]
@@ -53,22 +85,20 @@ where
     fn order_decs(&self, d1: &Participant, d2: &Participant) -> Ordering
     {
         let sort_by_timestamp = d2.timestamp.cmp(&d1.timestamp);
-        // if sort_by_timestamp != Ordering::Equal
-        // {
-        //     return sort_by_timestamp;
-        // }
-        sort_by_timestamp
+        if sort_by_timestamp != Ordering::Equal
+        {
+            return sort_by_timestamp;
+        }        
+        compare_by_params(&d1.params, &d2.params)
     }
 
     /// Returns first participant.
     pub fn first_participant(&self) -> Option<Participant> {
         let participants = self.participants();
-        let p = participants.iter()
+        participants.iter()
             .map(|x| x.1)
             .filter(|x| !x.have_bought && !x.removed)
             .max_by(|x, y| self.order_decs(x, y))
-            .unwrap();
-       Some(p)
     }
 
     /// Create new participant and append first record to its history.
@@ -78,6 +108,7 @@ where
         timestamp: u64,
         have_bought: bool,
         removed: bool,
+        params: &str,
         transaction: &Hash,
     ) {
         let created_participant = {
@@ -90,6 +121,7 @@ where
                 timestamp,
                 have_bought,
                 removed,
+                params,
                 history.len(),
                 &history_hash,
             )

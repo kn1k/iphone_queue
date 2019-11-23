@@ -58,6 +58,8 @@ pub struct Add {
     pub key: PublicKey,
     /// timestamp
     pub timestamp: u64,
+    /// params
+    pub params: String
 }
 
 /// Buy a phone.
@@ -93,9 +95,10 @@ impl Add {
         pk: &PublicKey,
         &key: &PublicKey,
         timestamp: u64,
+        params: String,
         sk: &SecretKey,
     ) -> Signed<RawTransaction> {
-        Message::sign_transaction(Self { key, timestamp }, SERVICE_ID, *pk, sk)
+        Message::sign_transaction(Self { key, timestamp, params }, SERVICE_ID, *pk, sk)
     }
 }
 
@@ -131,8 +134,9 @@ impl Transaction for Add {
 
         if schema.participant(key).is_none() {
             let timestamp = self.timestamp;
+            let params = &self.params;
 
-            schema.add_participant(key, timestamp, false, false, &hash);
+            schema.add_participant(key, timestamp, false, false, params, &hash);
 
             Ok(())
         } else {

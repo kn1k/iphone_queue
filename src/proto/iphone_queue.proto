@@ -14,10 +14,12 @@ message Participant {
     bool have_bought = 3;
     // removed
     bool removed = 4;
+    /// json строка с параметрами
+    string params = 5;
     // history len
-    uint64 history_len = 5;
+    uint64 history_len = 6;
     // `Hash` of the transactions history.
-    exonum.Hash history_hash = 6;
+    exonum.Hash history_hash = 7;
 }
 
 // Create participant
@@ -26,6 +28,8 @@ message Add {
     exonum.PublicKey key = 1;
     // timestamp
     uint64 timestamp = 2;
+    // params
+    string params = 3;
 }
 
 // Buy an iphone
